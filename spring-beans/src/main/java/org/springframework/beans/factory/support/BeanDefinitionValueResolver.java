@@ -105,6 +105,8 @@ class BeanDefinitionValueResolver {
 	public Object resolveValueIfNecessary(Object argName, @Nullable Object value) {
 		// We must check each value to see whether it requires a runtime reference
 		// to another bean to be resolved.
+		//RuntimeBeanReference--->运行时引用
+		//例如BeanA依赖BeanB，那么配置文件中通过配置ref标签进行引用，在解析BeanDefinition的时候，是不会直接实例化BeanB的，这个就是RuntimeReference
 		if (value instanceof RuntimeBeanReference) {
 			RuntimeBeanReference ref = (RuntimeBeanReference) value;
 			return resolveReference(argName, ref);
@@ -118,6 +120,7 @@ class BeanDefinitionValueResolver {
 			}
 			return refName;
 		}
+		//解析innerBean
 		else if (value instanceof BeanDefinitionHolder) {
 			// Resolve BeanDefinitionHolder: contains BeanDefinition with name and aliases.
 			BeanDefinitionHolder bdHolder = (BeanDefinitionHolder) value;
@@ -129,7 +132,7 @@ class BeanDefinitionValueResolver {
 			String innerBeanName = "(inner bean)" + BeanFactoryUtils.GENERATED_BEAN_NAME_SEPARATOR +
 					ObjectUtils.getIdentityHexString(bd);
 			return resolveInnerBean(argName, innerBeanName, bd);
-		}
+		}//解析数组
 		else if (value instanceof ManagedArray) {
 			// May need to resolve contained runtime references.
 			ManagedArray array = (ManagedArray) value;
@@ -153,19 +156,19 @@ class BeanDefinitionValueResolver {
 				}
 			}
 			return resolveManagedArray(argName, (List<?>) value, elementType);
-		}
+		}//解析List集合
 		else if (value instanceof ManagedList) {
 			// May need to resolve contained runtime references.
 			return resolveManagedList(argName, (List<?>) value);
-		}
+		}//解析set集合
 		else if (value instanceof ManagedSet) {
 			// May need to resolve contained runtime references.
 			return resolveManagedSet(argName, (Set<?>) value);
-		}
+		}//解析map集合
 		else if (value instanceof ManagedMap) {
 			// May need to resolve contained runtime references.
 			return resolveManagedMap(argName, (Map<?, ?>) value);
-		}
+		}//解析properties属性
 		else if (value instanceof ManagedProperties) {
 			Properties original = (Properties) value;
 			Properties copy = new Properties();
@@ -184,7 +187,7 @@ class BeanDefinitionValueResolver {
 				copy.put(propKey, propValue);
 			});
 			return copy;
-		}
+		} //解析字符串
 		else if (value instanceof TypedStringValue) {
 			// Convert value to target type here.
 			TypedStringValue typedStringValue = (TypedStringValue) value;
@@ -351,9 +354,11 @@ class BeanDefinitionValueResolver {
 	@Nullable
 	private Object resolveReference(Object argName, RuntimeBeanReference ref) {
 		try {
+			//解析引用beanName
 			Object bean;
 			String refName = ref.getBeanName();
 			refName = String.valueOf(doEvaluate(refName));
+			//判断引用bean是否属于父beanFactory
 			if (ref.isToParent()) {
 				if (this.beanFactory.getParentBeanFactory() == null) {
 					throw new BeanCreationException(
@@ -362,7 +367,7 @@ class BeanDefinitionValueResolver {
 							"' in parent factory: no parent factory available");
 				}
 				bean = this.beanFactory.getParentBeanFactory().getBean(refName);
-			}
+			}//从当前beanFactory获取引用beanName的实例
 			else {
 				bean = this.beanFactory.getBean(refName);
 				this.beanFactory.registerDependentBean(refName, this.beanName);

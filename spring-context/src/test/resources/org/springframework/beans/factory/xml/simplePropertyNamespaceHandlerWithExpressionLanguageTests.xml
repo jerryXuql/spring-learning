@@ -4,7 +4,7 @@
 	   xmlns:p="http://www.springframework.org/schema/p"
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="foo" class="org.springframework.tests.sample.beans.TestBean" p:name="Baz"/>
+	<bean id="foo" class="org.springframework.tests.sample.beans.TestBean" p:name="Baz" name="foo,myFoo"/>
 
 	<bean id="bar" class="org.springframework.tests.sample.beans.TestBean" p:name="#{foo.name}"/>
 

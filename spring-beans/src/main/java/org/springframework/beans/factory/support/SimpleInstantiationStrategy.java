@@ -60,6 +60,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		// Don't override the class with CGLIB if no overrides.
+		//如果没有使用方法覆盖replace-method或lookup-method，则直接使用反射创建bean的实例
 		if (!bd.hasMethodOverrides()) {
 			Constructor<?> constructorToUse;
 			synchronized (bd.constructorArgumentLock) {
@@ -83,7 +84,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 						throw new BeanInstantiationException(clazz, "No default constructor found", ex);
 					}
 				}
-			}
+			}//通过beanUtils实例化bean
 			return BeanUtils.instantiateClass(constructorToUse);
 		}
 		else {

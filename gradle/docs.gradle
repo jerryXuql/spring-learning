@@ -50,7 +50,7 @@ task api(type: Javadoc) {
 	}
 }
 
-dokka {
+/*dokka {
 	dependsOn {
 		tasks.getByName("api")
 	}
@@ -107,7 +107,7 @@ asciidoctor {
 			stylesheet: 'main.css',
 			'spring-version': project.version
 
-}
+}*/
 
 task docsZip(type: Zip, dependsOn: ['api', 'asciidoctor', 'dokka']) {
 	group = "Distribution"
@@ -148,14 +148,15 @@ task schemaZip(type: Zip) {
 		def Properties schemas = new Properties();
 
 		subproject.sourceSets.main.resources.find {
-			it.path.endsWith("META-INF/spring.schemas")
+			//it.path.endsWith("META-INF/spring.schemas")
+			it.path.endsWith("META-INF\\spring.schemas")
 		}?.withInputStream { schemas.load(it) }
 
 		for (def key : schemas.keySet()) {
 			def shortName = key.replaceAll(/http.*schema.(.*).spring-.*/, '$1')
 			assert shortName != key
 			File xsdFile = subproject.sourceSets.main.resources.find {
-				it.path.endsWith(schemas.get(key))
+				it.path.endsWith(schemas.get(key).replaceAll('\\/','\\\\'))
 			}
 			assert xsdFile != null
 			into (shortName) {
@@ -208,7 +209,7 @@ distZip.mustRunAfter subprojects.test
 
 // Create a distribution that contains all dependencies (required and optional).
 // Not published by default; only for use when building from source.
-task depsZip(type: Zip, dependsOn: distZip) { zipTask ->
+/*task depsZip(type: Zip, dependsOn: distZip) { zipTask ->
 	group = "Distribution"
 	baseName = "spring-framework"
 	classifier = "dist-with-deps"
@@ -236,4 +237,4 @@ task depsZip(type: Zip, dependsOn: distZip) { zipTask ->
 			}
 		}
 	}
-}
+}*/

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!--<bean id="foo" class="org.springframework.tests.sample.beans.TestBean" p:name="Baz" name="foo,myFoo"/>
+
+	<bean id="bar" class="org.springframework.tests.sample.beans.TestBean" p:name="#{foo.name}"/>-->
+	<!--三种bean的注入方式-->
+	<bean id="dog1" class="entity.Dog"/>
+	<bean id="dog2" class="entity.Dog">
+		<constructor-arg index="0" value="小明"/>
+		<constructor-arg index="1" value="3"/>
+	</bean>
+
+	<!-- 静态工厂方法实例化 -->
+	<bean id="dog3" class="entity.DogStaticFactory" factory-method="newInstance">
+		<!-- 指定构造器参数 index对应构造器中参数的位置 -->
+		<constructor-arg index="0" value="小明"/>
+		<constructor-arg index="1" value="3"/>
+	</bean>
+
+	<!-- 实例工厂方法实例化 -->
+	<bean id="dogFactory" class="entity.DogFactory"/>
+	<!-- 不能指定class属性,此时必须使用factory-bean属性来指定工厂Bean,factory-method属性指定实例化Bean的方法 -->
+	<bean id="dog4" factory-bean="dogFactory" factory-method="newInstance">
+		<constructor-arg index="0" value="小明"/>
+		<constructor-arg index="1" value="3"/>
+	</bean>
+
+	<!--循环依赖-->
+	<bean id="classA" class="cyclic.ClassA" scope="singleton">
+		<property name="classB" ref="classB"></property>
+	</bean>
+	<bean id="classB" class="cyclic.ClassB" scope="singleton">
+		<property name="classA" ref="classA"></property>
+	</bean>
+
+	<!--内部bean-->
+	<bean id="outer" class="entity.Outer">
+		<property name="name" value="我是一个外部bean"/>
+		<property name="age" value="30"/>
+		<property name="inner">
+			<bean class="entity.Inner">
+				<property name="name" value="我是一个内部bean"/>
+				<property name="age" value="10"/>
+			</bean>
+		</property>
+	</bean>
+
+	<!--父子bean
+		子bean必须与父bean保持兼容性，子bean中必须有父bean定义的所有属性
+		父bean必须是抽象bean或者定义lazy-init=true也就是不让bean工厂实例化该bean
+		abstract=true，spring不会实例化该bean
+	-->
+	<bean id="father" class="entity.Father" abstract="true">
+		<property name="name" value="father name"/>
+	</bean>
+	<bean id="sun" class="entity.Sun" parent="father">
+		<property name="name" value="sun name"/>
+		<property name="age" value="18"/>
+	</bean>
+
+	<bean id="myLifeCycleBean" class="lifecycle.LifeCycleBean" destroy-method="myDestory" init-method="myInit">
+		<property name="name" value="张三"/>
+		<property name="age" value="25"/>
+	</bean>
+	<bean id="myBeanPostProcessor" class="lifecycle.LifeCycleBeanPostProcessor"/>
+
+</beans>
