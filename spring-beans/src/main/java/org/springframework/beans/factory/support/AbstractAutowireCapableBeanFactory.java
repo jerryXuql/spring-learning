@@ -465,6 +465,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// clone the bean definition in case of a dynamically resolved Class
 		// which cannot be stored in the shared merged bean definition.
 		//确保bean已经被解析，并且在动态解析类不能存储在共享合并bean的定义中时克隆bean定义
+		//判断需要创建的bean是否可以实例化，是否可以通过当前的类加载器加载
 		Class<?> resolvedClass = resolveBeanClass(mbd, beanName);
 		if (resolvedClass != null && !mbd.hasBeanClass() && mbd.getBeanClassName() != null) {
 			mbdToUse = new RootBeanDefinition(mbd);
@@ -483,6 +484,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+			//如果bean配置了初始化前和初始化后的处理器，则试图返回一个需要创建bean的代理对象
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
 				return bean;
@@ -1132,6 +1134,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		//如果该bean已经被解析过了
 		if (resolved) {
 			//使用已经解析过的构造函数实例化
+			//配置了自动装配属性，使用容器的自动装配实例化
+			//容器的自动装配是根据参数类型匹配bean的构造方法
 			if (autowireNecessary) {
 				return autowireConstructor(beanName, mbd, null, null);
 			}//使用默认无参构造函数实例化
@@ -1237,6 +1241,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			final BeanFactory parent = this;
 			//如果权限管理器不为空，需要校验
 			if (System.getSecurityManager() != null) {
+				//匿名内置类，根据实例化策略创建实例对象，（JDK的反射机制或者CGLIB）
 				beanInstance = AccessController.doPrivileged((PrivilegedAction<Object>) () ->
 						getInstantiationStrategy().instantiate(mbd, beanName, parent),
 						getAccessControlContext());

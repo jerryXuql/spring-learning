@@ -137,11 +137,25 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	public ClassPathXmlApplicationContext(
 			String[] configLocations, boolean refresh, @Nullable ApplicationContext parent)
 			throws BeansException {
-
+		//调用父类构造器
 		super(parent);
+		//设置配置文件路径
 		setConfigLocations(configLocations);
 		if (refresh) {
+			//扩展功能,作用类似于IOC容器的重启
 			refresh();
+			/*
+			* 总结：IOC容器初始化的基本步骤
+			* 1.初始化入口在容器实现中的refresh调用来完成
+			* 2.对bean定义载入IOC容器使用的方法是loadBeanDefinition，大致过程如下：
+			* 	通过ResourceLoader来完成资源文件位置的定位，DefaultResourceLoader是默认实现，通过BeanDefinitionReader来完成定义信息的解析和Bean信息的注册
+			* 	往往使用的是XMLBeanDefinitionReader来解析bean定义的xml文件，实际的处理过程委托给BeanDefinitionParserDelegate来完成从而得到bean的定义信息
+			* 	这些信息在Spring中使用BeanDefinition对象来表示。
+			* 	容器得到BeanDefinition之后，需要把它在IOC容器中注册，这是由IOC实现BeanDefinitionRegistry接口来实现的，注册过程就是在IOC容器内部维护一个HashMap保存得到的BeanDefinition
+			* 注意：此时还没有进行依赖注入，依赖注入发生有两种情况
+			* 	1)用户第一次通过getBean方法向IOC容器索要bean时，IOC容器出发依赖注入
+			* 	2)用户在bean定义资源中的bean元素配置了lazy-init属性，即让容器在解析注册bean定义时进行预实例化，触发依赖注入
+			* */
 		}
 	}
 
